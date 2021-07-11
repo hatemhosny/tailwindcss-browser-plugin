@@ -1,27 +1,10 @@
-# Tailwind JIT CDN
+# tailwindcss-browser-plugin
 
-Use the full power of Tailwind CSS' new JIT compiler by including one script tag to your HTML.
+Tailwind CSS in JIT mode as PostCSS plugin to be used in the browser.
 
-## Usage:
+It was developed for use in [LocalPen](https://github.com/hatemhosny/localpen).
 
-Just include this script tag into your site:
-
-```
-<script src="https://unpkg.com/tailwindcss-jit-cdn"></script>
-```
-
-You can learn all about this package in our [in-depth blog post](https://beyondco.de/blog/tailwind-jit-compiler-via-cdn).
-
-## Support Us
-
-[<img src="https://usewindy.com/img/card-new.png">](https://usewindy.com)
-
-We spend a lot of time working on our [free developer services](https://beyondco.de/services) or open source packages. You can support our work by [buying one of our paid products](https://beyondco.de/software).
-
-## Credits
-
-- [Marcel Pociot](https://github.com/mpociot)
-- [All Contributors](../../contributors)
+This project was built on and inspired by [Tailwind JIT CDN](https://github.com/beyondcode/tailwindcss-jit-cdn).
 
 ## License
 
