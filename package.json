@@ -1,6 +1,6 @@
 {
   "name": "tailwindcss-browser-plugin",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "scripts": {
     "build": "vue-cli-service build --target lib --name tailwindcss src/index.js",
     "lint": "vue-cli-service lint"

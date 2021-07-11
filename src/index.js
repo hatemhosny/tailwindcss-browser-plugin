@@ -10,7 +10,4 @@ let defaultConfig = {
     require("@tailwindcss/line-clamp"),
   ],
 };
-export default {
-  tailwindcss,
-  defaultConfig,
-};
+export { tailwindcss, defaultConfig };
