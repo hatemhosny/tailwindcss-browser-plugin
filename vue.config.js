@@ -7,7 +7,7 @@ const externals = {
   resolve: "self.resolve",
   chokidar: "self.chokidar",
   purgecss: "self.purgecss",
-  tmp: 'self.tmp',
+  tmp: "self.tmp",
 };
 
 const moduleOverrides = {
@@ -42,20 +42,24 @@ const files = [
 module.exports = {
   productionSourceMap: false,
   configureWebpack: (config) => {
-
     config.resolve.alias = { ...config.resolve.alias, ...moduleOverrides };
 
     config.plugins.push(
       new webpack.DefinePlugin({
         "process.env.TAILWIND_MODE": JSON.stringify("build"),
         "process.env.TAILWIND_DISABLE_TOUCH": true,
+        "window.document": {},
+        document: {
+          location: { href: { replace: () => "" } },
+          getElementsByTagName: () => [],
+        },
       })
     );
 
     // there's some node-specific stuff in parse-glob
     // we don't use globs though so this can be overridden
     config.module.rules.push({
-      test: require.resolve('tailwindcss/node_modules/glob-parent'),
+      test: require.resolve("tailwindcss/node_modules/glob-parent"),
       use: [
         createLoader(function(_source) {
           return `module.exports = () => ''`;
@@ -64,7 +68,7 @@ module.exports = {
     });
 
     config.module.rules.push({
-      test: require.resolve('is-glob'),
+      test: require.resolve("is-glob"),
       use: [
         createLoader(function(_source) {
           return `module.exports = () => false`;
@@ -73,15 +77,15 @@ module.exports = {
     });
 
     config.module.rules.push({
-      test: require.resolve('tailwindcss/node_modules/fast-glob'),
+      test: require.resolve("tailwindcss/node_modules/fast-glob"),
       use: [
-        createLoader(function (_source) {
+        createLoader(function(_source) {
           return `module.exports = {
             sync: (patterns) => [].concat(patterns)
-          }`
+          }`;
         }),
       ],
-    })
+    });
 
     config.module.rules.push({
       test: require.resolve("tailwindcss/lib/jit/processTailwindFeatures.js"),
@@ -97,9 +101,7 @@ module.exports = {
           /_fs\.default\.readFileSync\(.*?'utf8'\)/g,
           (m) => {
             for (let i = 0; i < files.length; i++) {
-              if (
-                files[i].pattern.test(m)
-              ) {
+              if (files[i].pattern.test(m)) {
                 return (
                   "`" +
                   fs.readFileSync(files[i].file, "utf8").replace(/`/g, "\\`") +
