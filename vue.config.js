@@ -59,7 +59,7 @@ module.exports = {
     // there's some node-specific stuff in parse-glob
     // we don't use globs though so this can be overridden
     config.module.rules.push({
-      test: require.resolve("tailwindcss/node_modules/glob-parent"),
+      test: require.resolve("glob-parent"),
       use: [
         createLoader(function(_source) {
           return `module.exports = () => ''`;
@@ -77,7 +77,7 @@ module.exports = {
     });
 
     config.module.rules.push({
-      test: require.resolve("tailwindcss/node_modules/fast-glob"),
+      test: require.resolve("fast-glob"),
       use: [
         createLoader(function(_source) {
           return `module.exports = {
@@ -91,6 +91,13 @@ module.exports = {
       test: require.resolve("tailwindcss/lib/jit/processTailwindFeatures.js"),
       use: createLoader(function(source) {
         return source.replace(`let warned = false;`, `let warned = true;`);
+      }),
+    });
+
+    config.module.rules.push({
+      test: require.resolve("color/index.js"),
+      use: createLoader(function(source) {
+        return source.replace(`chan <= 0.039_28`, `chan <= 0.03928`);
       }),
     });
 
