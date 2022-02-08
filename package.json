@@ -1,22 +1,22 @@
 {
   "name": "@live-codes/tailwindcss-browser-plugin",
-  "version": "0.2.2",
+  "version": "0.3.1",
   "scripts": {
     "build": "vue-cli-service build --target lib --name tailwindcss src/index.js",
     "lint": "vue-cli-service lint"
   },
   "main": "dist/tailwindcss.umd.min.js",
   "dependencies": {
-    "@tailwindcss/aspect-ratio": "0.3.0",
-    "@tailwindcss/forms": "0.3.4",
-    "@tailwindcss/line-clamp": "0.2.2",
-    "@tailwindcss/typography": "0.4.1",
+    "@tailwindcss/aspect-ratio": "0.4.0",
+    "@tailwindcss/forms": "0.4.0",
+    "@tailwindcss/line-clamp": "0.3.1",
+    "@tailwindcss/typography": "0.5.1",
     "core-js": "3.19.1",
     "modern-normalize": "1.1.0",
     "nanoid": "3.1.30",
     "normalize.css": "8.0.1",
-    "postcss": "8.3.11",
-    "tailwindcss": "2.2.19"
+    "postcss": "8.4.6",
+    "tailwindcss": "3.0.19"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "4.4.0",

@@ -34,7 +34,7 @@ const files = [
     pattern: /preflight/,
     file: path.resolve(
       __dirname,
-      "node_modules/tailwindcss/lib/plugins/css/preflight.css"
+      "node_modules/tailwindcss/lib/css/preflight.css"
     ),
   },
 ];
@@ -61,7 +61,7 @@ module.exports = {
     config.module.rules.push({
       test: require.resolve("glob-parent"),
       use: [
-        createLoader(function(_source) {
+        createLoader(function (_source) {
           return `module.exports = () => ''`;
         }),
       ],
@@ -70,7 +70,7 @@ module.exports = {
     config.module.rules.push({
       test: require.resolve("is-glob"),
       use: [
-        createLoader(function(_source) {
+        createLoader(function (_source) {
           return `module.exports = () => false`;
         }),
       ],
@@ -79,7 +79,7 @@ module.exports = {
     config.module.rules.push({
       test: require.resolve("fast-glob"),
       use: [
-        createLoader(function(_source) {
+        createLoader(function (_source) {
           return `module.exports = {
             sync: (patterns) => [].concat(patterns)
           }`;
@@ -88,22 +88,22 @@ module.exports = {
     });
 
     config.module.rules.push({
-      test: require.resolve("tailwindcss/lib/jit/processTailwindFeatures.js"),
-      use: createLoader(function(source) {
+      test: require.resolve("tailwindcss/lib/processTailwindFeatures.js"),
+      use: createLoader(function (source) {
         return source.replace(`let warned = false;`, `let warned = true;`);
       }),
     });
 
-    config.module.rules.push({
-      test: require.resolve("color/index.js"),
-      use: createLoader(function(source) {
-        return source.replace(`chan <= 0.039_28`, `chan <= 0.03928`);
-      }),
-    });
+    // config.module.rules.push({
+    //   test: require.resolve("color/index.js"),
+    //   use: createLoader(function (source) {
+    //     return source.replace(`chan <= 0.039_28`, `chan <= 0.03928`);
+    //   }),
+    // });
 
     config.module.rules.push({
-      test: require.resolve("tailwindcss/lib/plugins/preflight.js"),
-      use: createLoader(function(source) {
+      test: require.resolve("tailwindcss/lib/corePlugins.js"),
+      use: createLoader(function (source) {
         return source.replace(
           /_fs\.default\.readFileSync\(.*?'utf8'\)/g,
           (m) => {
