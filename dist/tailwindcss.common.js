@@ -9474,6 +9474,7 @@ var _toPath = __webpack_require__("175a");
 var _log = _interopRequireDefault(__webpack_require__("85a3"));
 var _negateValue = _interopRequireDefault(__webpack_require__("e3e7"));
 var _isValidArbitraryValue = _interopRequireDefault(__webpack_require__("dabe"));
+var _generateRules = __webpack_require__("d468");
 function _interopRequireDefault(obj) {
     return obj && obj.__esModule ? obj : {
         default: obj
@@ -9499,6 +9500,10 @@ function _interopRequireWildcard(obj) {
         newObj.default = obj;
         return newObj;
     }
+}
+function prefix(context, selector) {
+    let prefix1 = context.tailwindConfig.prefix;
+    return typeof prefix1 === 'function' ? prefix1(selector) : prefix1 + selector;
 }
 function parseVariantFormatString(input) {
     if (input.includes('{')) {
@@ -10186,9 +10191,44 @@ function registerPlugins(plugins, context) {
             }
         }
     }
+    // A list of utilities that are used by certain Tailwind CSS utilities but
+    // that don't exist on their own. This will result in them "not existing" and
+    // sorting could be weird since you still require them in order to make the
+    // host utitlies work properly. (Thanks Biology)
+    let parasiteUtilities = new Set([
+        prefix(context, 'group'),
+        prefix(context, 'peer')
+    ]);
+    context.sortClassList = function sortClassList(classes) {
+        let sortedClassNames = new Map();
+        for (let [sort, rule] of (0, _generateRules).generateRules(new Set(classes), context)){
+            if (sortedClassNames.has(rule.raws.tailwind.candidate)) continue;
+            sortedClassNames.set(rule.raws.tailwind.candidate, sort);
+        }
+        return classes.map((className)=>{
+            var ref;
+            let order = (ref = sortedClassNames.get(className)) !== null && ref !== void 0 ? ref : null;
+            if (order === null && parasiteUtilities.has(className)) {
+                // This will make sure that it is at the very beginning of the
+                // `components` layer which technically means 'before any
+                // components'.
+                order = context.layerOrder.components;
+            }
+            return [
+                className,
+                order
+            ];
+        }).sort(([, a], [, z])=>{
+            if (a === z) return 0;
+            if (a === null) return -1;
+            if (z === null) return 1;
+            return (0, _bigSign).default(a - z);
+        }).map(([className])=>className
+        );
+    };
     // Generate a list of strings for autocompletion purposes, e.g.
     // ['uppercase', 'lowercase', ...]
-    context.getClassList = function() {
+    context.getClassList = function getClassList() {
         let output = [];
         for (let util of classList){
             if (Array.isArray(util)) {
@@ -15690,11 +15730,14 @@ function processApply(root, context) {
                 throw apply.error(`@apply is not supported within nested at-rules like @${apply.parent.name}. You can fix this by un-nesting @${apply.parent.name}.`);
             }
             for (let applyCandidate of applyCandidates){
+                if ([
+                    prefix(context, 'group'),
+                    prefix(context, 'peer')
+                ].includes(applyCandidate)) {
+                    // TODO: Link to specific documentation page with error code.
+                    throw apply.error(`@apply should not be used with the '${applyCandidate}' utility`);
+                }
                 if (!applyClassCache.has(applyCandidate)) {
-                    if (applyCandidate === prefix(context, 'group')) {
-                        // TODO: Link to specific documentation page with error code.
-                        throw apply.error(`@apply should not be used with the '${applyCandidate}' utility`);
-                    }
                     throw apply.error(`The \`${applyCandidate}\` class does not exist. If \`${applyCandidate}\` is a custom class, make sure it is defined within a \`@layer\` directive.`);
                 }
                 let rules = applyClassCache.get(applyCandidate);
@@ -16283,7 +16326,7 @@ module.exports.postcss = true;
 /***/ "8072":
 /***/ (function(module) {
 
-module.exports = JSON.parse("{\"_from\":\"tailwindcss@3.0.19\",\"_id\":\"tailwindcss@3.0.19\",\"_inBundle\":false,\"_integrity\":\"sha512-rjsdfz/qZya5xQ0OVynEMETgWq1CacmftgMYeXXh6bRM5vxsNwRSbMJsCCIjq/w67om9VP/AFMolOwiE+5VKig==\",\"_location\":\"/tailwindcss\",\"_phantomChildren\":{\"anymatch\":\"3.1.2\",\"braces\":\"3.0.2\",\"cssesc\":\"3.0.0\",\"fsevents\":\"2.3.2\",\"has\":\"1.0.3\",\"is-binary-path\":\"2.1.0\",\"is-glob\":\"4.0.3\",\"normalize-path\":\"3.0.0\",\"path-parse\":\"1.0.7\",\"readdirp\":\"3.6.0\",\"supports-preserve-symlinks-flag\":\"1.0.0\",\"util-deprecate\":\"1.0.2\"},\"_requested\":{\"type\":\"version\",\"registry\":true,\"raw\":\"tailwindcss@3.0.19\",\"name\":\"tailwindcss\",\"escapedName\":\"tailwindcss\",\"rawSpec\":\"3.0.19\",\"saveSpec\":null,\"fetchSpec\":\"3.0.19\"},\"_requiredBy\":[\"/\"],\"_resolved\":\"https://registry.npmjs.org/tailwindcss/-/tailwindcss-3.0.19.tgz\",\"_shasum\":\"cd789953e6762af2e80c5a3e5d6da3a975ee8215\",\"_spec\":\"tailwindcss@3.0.19\",\"_where\":\"D:\\\\DevWork\\\\live-codes\\\\tailwindcss-browser-plugin\",\"bin\":{\"tailwind\":\"lib/cli.js\",\"tailwindcss\":\"lib/cli.js\"},\"browserslist\":[\"> 1%\",\"not edge <= 18\",\"not ie 11\",\"not op_mini all\"],\"bugs\":{\"url\":\"https://github.com/tailwindlabs/tailwindcss/issues\"},\"bundleDependencies\":false,\"dependencies\":{\"arg\":\"^5.0.1\",\"chalk\":\"^4.1.2\",\"chokidar\":\"^3.5.3\",\"color-name\":\"^1.1.4\",\"cosmiconfig\":\"^7.0.1\",\"detective\":\"^5.2.0\",\"didyoumean\":\"^1.2.2\",\"dlv\":\"^1.1.3\",\"fast-glob\":\"^3.2.11\",\"glob-parent\":\"^6.0.2\",\"is-glob\":\"^4.0.3\",\"normalize-path\":\"^3.0.0\",\"object-hash\":\"^2.2.0\",\"postcss-js\":\"^4.0.0\",\"postcss-load-config\":\"^3.1.0\",\"postcss-nested\":\"5.0.6\",\"postcss-selector-parser\":\"^6.0.9\",\"postcss-value-parser\":\"^4.2.0\",\"quick-lru\":\"^5.1.1\",\"resolve\":\"^1.22.0\"},\"deprecated\":false,\"description\":\"A utility-first CSS framework for rapidly building custom user interfaces.\",\"devDependencies\":{\"@swc/cli\":\"^0.1.55\",\"@swc/core\":\"^1.2.127\",\"@swc/jest\":\"^0.2.17\",\"@swc/register\":\"^0.1.10\",\"autoprefixer\":\"^10.4.2\",\"cssnano\":\"^5.0.16\",\"esbuild\":\"^0.14.10\",\"eslint\":\"^8.8.0\",\"eslint-config-prettier\":\"^8.3.0\",\"eslint-plugin-prettier\":\"^4.0.0\",\"jest\":\"^27.4.7\",\"jest-diff\":\"^27.4.6\",\"postcss\":\"^8.4.5\",\"prettier\":\"^2.5.1\",\"rimraf\":\"^3.0.0\"},\"engines\":{\"node\":\">=12.13.0\"},\"files\":[\"src/*\",\"cli/*\",\"lib/*\",\"peers/*\",\"scripts/*.js\",\"stubs/*.stub.js\",\"nesting/*\",\"*.css\",\"*.js\"],\"homepage\":\"https://tailwindcss.com\",\"jest\":{\"testTimeout\":30000,\"setupFilesAfterEnv\":[\"<rootDir>/jest/customMatchers.js\"],\"testPathIgnorePatterns\":[\"/node_modules/\",\"/integrations/\",\"/standalone-cli/\"],\"transform\":{\"\\\\.js$\":\"@swc/jest\"}},\"license\":\"MIT\",\"main\":\"lib/index.js\",\"name\":\"tailwindcss\",\"peerDependencies\":{\"autoprefixer\":\"^10.0.2\",\"postcss\":\"^8.0.9\"},\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/tailwindlabs/tailwindcss.git\"},\"scripts\":{\"generate:plugin-list\":\"node -r @swc/register scripts/create-plugin-list.js\",\"install:integrations\":\"node scripts/install-integrations.js\",\"postswcify\":\"esbuild lib/cli-peer-dependencies.js --bundle --platform=node --outfile=peers/index.js\",\"posttest\":\"npm run style\",\"prepublishOnly\":\"npm install --force && npm run swcify\",\"preswcify\":\"npm run generate:plugin-list && rimraf lib\",\"pretest\":\"npm run generate:plugin-list\",\"rebuild-fixtures\":\"npm run swcify && node -r @swc/register scripts/rebuildFixtures.js\",\"style\":\"eslint .\",\"swcify\":\"swc src --out-dir lib --copy-files\",\"test\":\"jest\",\"test:integrations\":\"npm run test --prefix ./integrations\"},\"style\":\"dist/tailwind.css\",\"version\":\"3.0.19\"}");
+module.exports = JSON.parse("{\"_from\":\"tailwindcss@3.0.20\",\"_id\":\"tailwindcss@3.0.20\",\"_inBundle\":false,\"_integrity\":\"sha512-Mdo5XMsEkHhZNgh8NzXOEwI9L4WAS9NnnhCWbWWhVDaNZ1bqcHvbybosbmW6CetrCuCgMtDeByQq4trSka7irQ==\",\"_location\":\"/tailwindcss\",\"_phantomChildren\":{\"anymatch\":\"3.1.2\",\"braces\":\"3.0.2\",\"cssesc\":\"3.0.0\",\"fsevents\":\"2.3.2\",\"has\":\"1.0.3\",\"is-binary-path\":\"2.1.0\",\"is-glob\":\"4.0.3\",\"normalize-path\":\"3.0.0\",\"path-parse\":\"1.0.7\",\"readdirp\":\"3.6.0\",\"supports-preserve-symlinks-flag\":\"1.0.0\",\"util-deprecate\":\"1.0.2\"},\"_requested\":{\"type\":\"version\",\"registry\":true,\"raw\":\"tailwindcss@3.0.20\",\"name\":\"tailwindcss\",\"escapedName\":\"tailwindcss\",\"rawSpec\":\"3.0.20\",\"saveSpec\":null,\"fetchSpec\":\"3.0.20\"},\"_requiredBy\":[\"/\"],\"_resolved\":\"https://registry.npmjs.org/tailwindcss/-/tailwindcss-3.0.20.tgz\",\"_shasum\":\"e2b96f9c99ef68e1c9101d115673f6005cf56643\",\"_spec\":\"tailwindcss@3.0.20\",\"_where\":\"D:\\\\DevWork\\\\live-codes\\\\tailwindcss-browser-plugin\",\"bin\":{\"tailwind\":\"lib/cli.js\",\"tailwindcss\":\"lib/cli.js\"},\"browserslist\":[\"> 1%\",\"not edge <= 18\",\"not ie 11\",\"not op_mini all\"],\"bugs\":{\"url\":\"https://github.com/tailwindlabs/tailwindcss/issues\"},\"bundleDependencies\":false,\"dependencies\":{\"arg\":\"^5.0.1\",\"chalk\":\"^4.1.2\",\"chokidar\":\"^3.5.3\",\"color-name\":\"^1.1.4\",\"cosmiconfig\":\"^7.0.1\",\"detective\":\"^5.2.0\",\"didyoumean\":\"^1.2.2\",\"dlv\":\"^1.1.3\",\"fast-glob\":\"^3.2.11\",\"glob-parent\":\"^6.0.2\",\"is-glob\":\"^4.0.3\",\"normalize-path\":\"^3.0.0\",\"object-hash\":\"^2.2.0\",\"postcss-js\":\"^4.0.0\",\"postcss-load-config\":\"^3.1.0\",\"postcss-nested\":\"5.0.6\",\"postcss-selector-parser\":\"^6.0.9\",\"postcss-value-parser\":\"^4.2.0\",\"prettier-plugin-tailwindcss\":\"^0.1.7\",\"quick-lru\":\"^5.1.1\",\"resolve\":\"^1.22.0\"},\"deprecated\":false,\"description\":\"A utility-first CSS framework for rapidly building custom user interfaces.\",\"devDependencies\":{\"@swc/cli\":\"^0.1.55\",\"@swc/core\":\"^1.2.127\",\"@swc/jest\":\"^0.2.17\",\"@swc/register\":\"^0.1.10\",\"autoprefixer\":\"^10.4.2\",\"cssnano\":\"^5.0.16\",\"esbuild\":\"^0.14.10\",\"eslint\":\"^8.8.0\",\"eslint-config-prettier\":\"^8.3.0\",\"eslint-plugin-prettier\":\"^4.0.0\",\"jest\":\"^27.4.7\",\"jest-diff\":\"^27.4.6\",\"postcss\":\"^8.4.6\",\"prettier\":\"^2.5.1\",\"rimraf\":\"^3.0.0\"},\"engines\":{\"node\":\">=12.13.0\"},\"files\":[\"src/*\",\"cli/*\",\"lib/*\",\"peers/*\",\"scripts/*.js\",\"stubs/*.stub.js\",\"nesting/*\",\"*.css\",\"*.js\"],\"homepage\":\"https://tailwindcss.com\",\"jest\":{\"testTimeout\":30000,\"setupFilesAfterEnv\":[\"<rootDir>/jest/customMatchers.js\"],\"testPathIgnorePatterns\":[\"/node_modules/\",\"/integrations/\",\"/standalone-cli/\"],\"transform\":{\"\\\\.js$\":\"@swc/jest\"}},\"license\":\"MIT\",\"main\":\"lib/index.js\",\"name\":\"tailwindcss\",\"peerDependencies\":{\"autoprefixer\":\"^10.0.2\",\"postcss\":\"^8.0.9\"},\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/tailwindlabs/tailwindcss.git\"},\"scripts\":{\"generate:plugin-list\":\"node -r @swc/register scripts/create-plugin-list.js\",\"install:integrations\":\"node scripts/install-integrations.js\",\"postswcify\":\"esbuild lib/cli-peer-dependencies.js --bundle --platform=node --outfile=peers/index.js\",\"posttest\":\"npm run style\",\"prepublishOnly\":\"npm install --force && npm run swcify\",\"preswcify\":\"npm run generate:plugin-list && rimraf lib\",\"pretest\":\"npm run generate:plugin-list\",\"rebuild-fixtures\":\"npm run swcify && node -r @swc/register scripts/rebuildFixtures.js\",\"style\":\"eslint .\",\"swcify\":\"swc src --out-dir lib --copy-files\",\"test\":\"jest\",\"test:integrations\":\"npm run test --prefix ./integrations\"},\"style\":\"dist/tailwind.css\",\"version\":\"3.0.20\"}");
 
 /***/ }),
 
@@ -34590,6 +34633,7 @@ function applyVariant(variant, matches, context) {
                 // .sm:underline {} is a variant of something in the utilities layer
                 // .sm:container {} is a variant of the container component
                 clone.nodes[0].raws.tailwind = {
+                    ...clone.nodes[0].raws.tailwind,
                     parentLayer: meta.layer
                 };
                 var _collectedFormats;
@@ -34741,6 +34785,7 @@ function splitWithSeparator(input, separator) {
 function* recordCandidates(matches, classCandidate) {
     for (const match of matches){
         match[1].raws.tailwind = {
+            ...match[1].raws.tailwind,
             classCandidate
         };
         yield match;
@@ -34865,6 +34910,10 @@ function* resolveMatches(candidate, context) {
             matches = applyVariant(variant, matches, context);
         }
         for (let match1 of matches){
+            match1[1].raws.tailwind = {
+                ...match1[1].raws.tailwind,
+                candidate
+            };
             // Apply final format selector
             if (match1[0].collectedFormats) {
                 let finalFormat = (0, _formatVariantSelector).formatVariantSelector('&', ...match1[0].collectedFormats);
